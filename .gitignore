@@ -27,5 +27,5 @@ assignments-*.tar
 
 /.idea/
 /projectFilesBackup/
-/src.*.erl/
+/src/*.erl/
 *.iml
