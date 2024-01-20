@@ -1,23 +1,33 @@
 Nonterminals expr.
-Terminals num var left right plus times exp.
+Terminals num var '+' '-' '*' '/' '^' '(' ')' func.
 Rootsymbol expr.
 
+Left    100     '+'.
+Left    100     '-'.
+Right   150     num.
+Right   150     expr.
+Left    200     '*'.
+Left    200     '/'.
+Left    300     '^'.
 
-Left 300 plus.
-Left 400 times.
-Left 600 exp.
+Right   400     '('.
+Left    400     ')'.
 
-expr -> num : value('$1').
-expr -> var : name('$1').
-expr -> expr plus expr : {add, '$1', '$3'}.
-expr -> expr times expr : {mul, '$1', '$3'}.
-expr -> expr exp expr : {exp, '$1', '$3'}.
-expr -> left expr right : '$2'.
+Right   500     func.
+
+expr -> num                     : '$1'.
+expr -> var                     : '$1'.
+expr -> '(' expr ')'            : '$2'.
+
+expr -> expr '+' expr           : {'+', '$1', '$3'}.
+expr -> expr '-' expr           : {'-', '$1', '$3'}.
+expr -> expr '*' expr           : {'*', '$1', '$3'}.
+expr -> num expr                : {'*', '$1', '$2'}.
+expr -> expr expr                : {'*', '$1', '$2'}.
+expr -> expr '/' expr           : {'/', '$1', '$3'}.
+expr -> expr '^' expr           : {'^', '$1', '$3'}.
+
+expr -> func expr               : {element(2, '$1'), '$2'}.
+
 
 Erlang code.
-
-value({num, _, Value}) -> Value.
-name({var, _, Name}) -> Name.
-
-
-
