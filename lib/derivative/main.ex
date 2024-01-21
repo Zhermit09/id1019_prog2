@@ -11,6 +11,9 @@ defmodule Derivative.Main do
     {:ok, tree} = :parser.parse(tokens)
     IO.inspect(tree)
 
+    result = Derivative.Derivate.derivate(tree, var)
+    IO.inspect(result)
+
     main()
   end
 
@@ -28,15 +31,15 @@ defmodule Derivative.Main do
   def input_var() do
     case IO.gets("var = ") |> String.trim() |> String.downcase() do
       "" ->
-        #IO.puts("Using 'x' per default")
-        ~c"x"
+        # IO.puts("Using 'x' as per default")
+        :x
 
       var ->
         char = String.at(var, 0)
 
         case char |> Integer.parse() do
           :error ->
-            char |> String.to_charlist()
+            char |> String.to_atom()
 
           _ ->
             IO.puts("Error: no integers allowed")
@@ -48,7 +51,7 @@ defmodule Derivative.Main do
   def input_int() do
     case IO.gets("n = ") |> String.trim() |> String.downcase() do
       "" ->
-        #IO.puts("Using '1' per default")
+        # IO.puts("Using '1' as per default")
         1
 
       string ->
@@ -58,7 +61,14 @@ defmodule Derivative.Main do
             input_int()
 
           {int, _} ->
-            int
+            case int > 0 do
+              true ->
+                int
+
+              _ ->
+                IO.puts("Error: integer must be greater than 0")
+                input_int()
+            end
         end
     end
   end

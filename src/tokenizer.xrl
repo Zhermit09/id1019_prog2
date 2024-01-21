@@ -9,14 +9,17 @@ WHITESPACE      = [\s\t\n\r]
 
 Rules.
 
+e               : {token, {num, e}}.
+pi|π            : {token, {num, pi}}.
+
 {NUM}           : {token, {num, list_to_integer(TokenChars)}}.
 {NUM}\.{NUM}    : {token, {num, list_to_float(TokenChars)}}.
-{VAR}           : {token, {var, TokenChars}}.
+{VAR}           : {token, {var, list_to_atom(TokenChars)}}.
 {L_BRACE}       : {token, {'(', '('}}.
 {R_BRACE}       : {token, {')', ')'}}.
 
-\+              : {token, {'+', '+'}}.
-\-              : {token, {'-', '-'}}.
+[\+?\-?]+       : {token, {sign(TokenChars), sign(TokenChars)}}.
+
 \*              : {token, {'*', '*'}}.
 \/              : {token, {'/', '/'}}.
 \^              : {token, {'^', '^'}}.
@@ -39,3 +42,9 @@ root{NUM}       : {token, {func, {root, {num, list_to_float(TokenChars)}}}}.
 
 
 Erlang code.
+
+sign(String) -> {_, Minus} = lists:partition(fun(C) -> C == $+ end, String),
+                    case length(Minus) rem 2 of
+                      1 -> '-';
+                      0 -> '+'
+                    end.

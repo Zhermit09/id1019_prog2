@@ -1,9 +1,11 @@
-Nonterminals expr.
+Nonterminals expr minus.
 Terminals num var '+' '-' '*' '/' '^' '(' ')' func.
 Rootsymbol expr.
 
+
+Unary   50     minus.
 Left    100     '+'.
-Left    100     '-'.
+Right   100     '-'.
 Right   150     num.
 Right   150     expr.
 Left    200     '*'.
@@ -15,15 +17,19 @@ Left    400     ')'.
 
 Right   500     func.
 
+
 expr -> num                     : '$1'.
 expr -> var                     : '$1'.
 expr -> '(' expr ')'            : '$2'.
 
 expr -> expr '+' expr           : {'+', '$1', '$3'}.
 expr -> expr '-' expr           : {'-', '$1', '$3'}.
+minus -> '-' expr               : {'-', {num, 0},'$2'}.
+expr -> minus                   : '$1'.
+
 expr -> expr '*' expr           : {'*', '$1', '$3'}.
 expr -> num expr                : {'*', '$1', '$2'}.
-expr -> expr expr                : {'*', '$1', '$2'}.
+expr -> expr expr               : {'*', '$1', '$2'}.
 expr -> expr '/' expr           : {'/', '$1', '$3'}.
 expr -> expr '^' expr           : {'^', '$1', '$3'}.
 
