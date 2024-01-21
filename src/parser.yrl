@@ -7,9 +7,9 @@ Unary   50     minus.
 Left    100     '+'.
 Right   100     '-'.
 Right   150     num.
-Right   150     expr.
+Left    175     '/'.
+Right   199     expr.
 Left    200     '*'.
-Left    200     '/'.
 Left    300     '^'.
 
 Right   400     '('.

@@ -22,6 +22,9 @@ defmodule Derivative.Derivate do
   @spec derivate(expr, atom()) :: expr
   @spec num(number()) :: num
 
+  #@e :math.exp(1)
+  #@pi :math.pi()
+
   def derivate({:var, var}, var) do
     num(1)
   end
@@ -52,28 +55,61 @@ defmodule Derivative.Derivate do
     d1 = derivate(e1, var)
     d2 = derivate(e2, var)
 
-    add(mul(e1, d2), mul(d1, e2))
+    add(mul(d2, e1), mul(d1, e2))
   end
 
   def derivate({:/, e1, e2}, var) do
     d1 = derivate(e1, var)
     d2 = derivate(e2, var)
 
-
-    _div(sub(mul(d1, e2), mul(e1, d2)), _exp(e2, num(2)))
+    _div(sub(mul(d1, e2), mul(d2, e1)), _exp(e2, num(2)))
   end
 
   def derivate({:^, e1, e2}, var) do
     d1 = derivate(e1, var)
     d2 = derivate(e2, var)
 
-    mul(_exp(e1, e2), add(mul(d2, ln(e1)), _div(mul(e2, d1), e1)))
+    mul(_exp(e1, e2), add(mul(d2, ln(e1)), _div(mul(d1, e2), e1)))
   end
 
   # ----Functions-------------------------------------------------------------------------------------------------------
 
   def derivate({{:log, base}, expr}, var) do
-    {:/}
+    d = derivate(expr, var)
+    _div(d, mul(expr, ln(base)))
+  end
+
+  def derivate({:sin, expr}, var) do
+    d = derivate(expr, var)
+    mul(d, cos(expr))
+  end
+
+  def derivate({:cos, expr}, var) do
+    d = derivate(expr, var)
+    mul(d, sub(num(0), sin(expr)))
+  end
+
+  def derivate({:tan, expr}, var) do
+    derivate(tan(expr), var)
+  end
+
+  def derivate({:asin, expr}, var) do
+    d = derivate(expr, var)
+    _div(d, _exp(sub(num(1), _exp(expr, num(2))), _div(num(1), num(2))))
+  end
+
+  def derivate({:acos, expr}, var) do
+    d = derivate(expr, var)
+    sub(num(0), _div(d, _exp(sub(num(1), _exp(expr, num(2))), _div(num(1), num(2)))))
+  end
+
+  def derivate({:atan, expr}, var) do
+    d = derivate(expr, var)
+    _div(d, add(num(1), _exp(expr, num(2))))
+  end
+
+  def derivate({{:root, num}, expr}, var) do
+    derivate(root(num, expr), var)
   end
 
   # ----Auxiliary Functions---------------------------------------------------------------------------------------------
@@ -147,33 +183,16 @@ defmodule Derivative.Derivate do
   end
 
   def _div({:num, a}, {:num, b}) do
-   """
- cond do
-      is_integer(a) and is_integer(b) ->
-        d = gcd(a, b)
-
-        {:/, num(a / d), num(b / d)}
-
-      true ->
-
-    end
-  """
-   num(a / b)
+    num(a / b)
   end
 
-  """
-
-  def gcd(x, y) do
-    case y do
-      0 -> x
-      _ -> gcd(y, rem(x, y))
-    end
+  def _div(a, a) do
+    num(1)
   end
-  """
+
   def _div(a, b) do
     {:/, a, b}
   end
-
 
   def _exp(a, {:num, 0}) do
     case a do
@@ -190,27 +209,63 @@ defmodule Derivative.Derivate do
     {:^, a, b}
   end
 
-
-  def ln(x) do
-    log(num(:e), x)
+  def ln(expr) do
+    log(num(:e), expr)
   end
 
-  def log(base, x) do
-    case x do
+  def log({:num, base}, expr) do
+    case expr do
       {:num, num} ->
         cond do
-          base === x ->
+          base == num ->
             num(1)
 
           num <= 0 ->
-            :error
+            :NAN
 
           true ->
-            {{:log, base}, x}
+            {{:log, {:num, base}}, expr}
+        end
+
+      {:var, var} ->
+        cond do
+          base == var ->
+            num(1)
+
+          true ->
+            {{:log, {:num, base}}, expr}
         end
 
       _ ->
-        {{:log, base}, x}
+        {{:log, {:num, base}}, expr}
     end
+  end
+
+  def sin(expr) do
+    {:sin, expr}
+  end
+
+  def cos(expr) do
+    {:cos, expr}
+  end
+
+  def tan(expr) do
+    _div(sin(expr), cos(expr))
+  end
+
+  def asin(expr) do
+    {:asin, expr}
+  end
+
+  def acos(expr) do
+    {:acos, expr}
+  end
+
+  def atan(expr) do
+    {:atan, expr}
+  end
+
+  def root(pow, expr) do
+    {:^, expr, _div(num(1), pow)}
   end
 end
