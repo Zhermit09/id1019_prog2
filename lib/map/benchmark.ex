@@ -2,10 +2,10 @@ defmodule Map.Benchmark do
   alias Map.List, as: MList
   alias Map.Tree, as: MTree
 
-  @step 100
-  @i 10
-  @k 1000
-  @warmup 2
+  @step 30
+  @i 100
+  @k 10000
+  @warmup 1
 
   def main() do
     data =

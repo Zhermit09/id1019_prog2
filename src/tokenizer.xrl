@@ -12,8 +12,9 @@ Rules.
 e                           : {token, {var, e}}.
 pi                          : {token, {var, pi}}.
 
-ln|log                      : {token, {func, {log, {num, e}}}}.
+log{NUM}                    : {token, {func, {log, {num, base(3, TokenChars)}}}}.
 log{NUM}[\.{NUM}]?          : {token, {func, {log, {num, base(3, TokenChars)}}}}.
+ln|log                      : {token, {func, {log, {num, e}}}}.
 
 sqrt                        : {token, {func, {root, {num, 2}}}}.
 root{NUM}[\.{NUM}]?         : {token, {func, {root, {num, base(4, TokenChars)}}}}.

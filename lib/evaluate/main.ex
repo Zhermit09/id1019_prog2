@@ -1,6 +1,8 @@
-defmodule Derivative.Main do
+defmodule Evaluate.Main do
+  alias Evaluate.EvalExpr, as: Eval
+
   def main do
-    IO.puts("[Derivative Calculator]\n")
+    IO.puts("[Expression Evaluator]\n")
     IO.puts("############################################################################
 [Supported Functions]
 
@@ -22,8 +24,7 @@ Trigonometric   :sin(f)
                 :atan(f)
 ----------------------------------------------------------------------------
 Input:          :f    = <- Give expression to derivate
-                :var  = <- Give a differentiation variable, default 'x'
-                :n    = <- Specify order of derivation, default '1'
+                :var  = <- Give values to variables, leave empty to skip
 ############################################################################
 \n")
 
@@ -32,27 +33,18 @@ Input:          :f    = <- Give expression to derivate
 
   def loop() do
     expression = input_expr()
-    var = input_var()
-    n = input_int()
+    map = input_var([])
+
 
     {:ok, tokens, _} = :tokenizer.string(expression)
     {:ok, tree} = :parser.parse(tokens)
 
-    IO.puts("\nInterpreted as: " <> stringify(tree) <>"\n")
-    derivate(n, n, tree, var)
+    IO.puts("\nInterpreted as: " <> stringify(tree) <> "\n")
     IO.puts("\n")
+
+    result = Eval.evaluate_expression(tree, map)
+    IO.puts("exp = " <> stringify(result))
     loop()
-  end
-
-  def derivate(1, n, tree, var) do
-    result = Derivative.Derivate.derivate(tree, var)
-    IO.puts("d#{var}#{n}: " <> stringify(result))
-  end
-
-  def derivate(i, n, tree, var) do
-    result = Derivative.Derivate.derivate(tree, var)
-    IO.puts("d#{var}#{n - i + 1}: " <> stringify(result))
-    derivate(i - 1, n, result, var)
   end
 
   def stringify({:num, num}) do
@@ -98,7 +90,7 @@ Input:          :f    = <- Give expression to derivate
   end
 
   def stringify({:-, {:num, 0}, e2}) do
-    "-#{stringify(e2)}"
+    "-(#{stringify(e2)})"
   end
 
   def stringify({op, e1, e2}) do
@@ -116,47 +108,39 @@ Input:          :f    = <- Give expression to derivate
     end
   end
 
-  def input_var() do
-    case IO.gets("var = ") |> String.trim() |> String.downcase() do
+  def input_var(list) do
+    case IO.gets("var: ") |> String.trim() |> String.downcase() do
       "" ->
-        # IO.puts("Using 'x' as per default")
-        :x
+        list
 
       var ->
         char = String.at(var, 0)
 
         case char |> Integer.parse() do
           :error ->
-            char |> String.to_atom()
+            input_var([{String.to_atom(char), input_int(char)} | list])
 
           _ ->
             IO.puts("Error: no integers allowed")
-            input_var()
+            input_var(list)
         end
     end
   end
 
-  def input_int() do
-    case IO.gets("n = ") |> String.trim() |> String.downcase() do
+  def input_int(char) do
+    case IO.gets("#{char} = ") |> String.trim() |> String.downcase() do
       "" ->
-        # IO.puts("Using '1' as per default")
-        1
+        IO.puts("Error: must give a value")
+        input_int(char)
 
       string ->
         case string |> Integer.parse() do
           :error ->
             IO.puts("Error: no characters allowed")
-            input_int()
+            input_int(char)
 
           {int, _} ->
-            case int > 0 do
-              true ->
-                int
-
-              _ ->
-                IO.puts("Error: integer must be greater than 0")
-                input_int()
-            end
+            int
         end
     end
   end
