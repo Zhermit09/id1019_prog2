@@ -1,6 +1,6 @@
 defmodule Evaluate.EvalExpr do
-  @e :math.exp(1)
-  @pi :math.pi()
+  #@e :math.exp(1)
+  #@pi :math.pi()
 
   def evaluate_expression(expr, values) do
     # all_values = [{:e, @e}, {:pi, @pi} | values]
