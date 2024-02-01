@@ -35,16 +35,19 @@ defmodule Interpreter.Eager do
 
   def eval_expr({:lambda, param, f_vars, seq}, map) do
     case Map.take(f_vars, map) do
-      {:error, msg} ->
-        {:error, msg}
-
-      {:ok, ctx} ->
-        {:ok, {:ctx, param, seq, ctx}}
+      {:error, msg} -> {:error, msg}
+      {:ok, ctx} -> {:ok, {:ctx, param, seq, ctx}}
     end
   end
 
   def eval_expr({:apply, exp, args}, map) do
-    eval([{:apply, exp, args}], map)
+    case eval([{:apply, exp, args}], map) do
+      {:error, msg} ->
+        {:error, msg}
+
+      {:ok, result} ->
+        {:ok, result}
+    end
   end
 
   def eval_match(:_, _, map) do
@@ -122,7 +125,7 @@ defmodule Interpreter.Eager do
   end
 
   def eval([], map) do
-    map
+    {:ok, map}
   end
 
   def eval([{:match, pat, exp} | rest], map) do
@@ -138,7 +141,13 @@ defmodule Interpreter.Eager do
             {:error, msg}
 
           {:ok, new_map} ->
-            eval(rest, new_map)
+            case eval(rest, new_map) do
+              {:error, msg} ->
+                {:error, msg}
+
+              {:ok, result} ->
+                {:ok, result}
+            end
         end
     end
   end
@@ -149,25 +158,33 @@ defmodule Interpreter.Eager do
         {:error, msg}
 
       {:ok, data_struct} ->
-        eval_case(seq, data_struct, map)
+        case eval_case(seq, data_struct, map) do
+          {:error, msg} ->
+            {:error, msg}
+
+          {:ok, result} ->
+            {:ok, result}
+        end
     end
   end
 
   def eval([{:apply, exp, args}], map) do
-    IO.inspect(eval_expr(exp, map))
     case eval_expr(exp, map) do
       {:error, msg} ->
         {:error, msg}
 
       {:ok, {:ctx, params, seq, ctx}} ->
-        case eval_ctx({params, args}, map) do
+        case eval_args({params, args}, map) do
           {:error, msg} ->
             {:error, msg}
 
           {:ok, new_map} ->
             case eval(seq, Map.merge(ctx, new_map)) do
-              {:error, msg} -> {:error, msg}
-              {:ok, result} -> result
+              {:error, msg} ->
+                {:error, msg}
+
+              {:ok, result} ->
+                {:ok, result}
             end
         end
     end
@@ -176,27 +193,28 @@ defmodule Interpreter.Eager do
   def eval([exp], map) do
     case eval_expr(exp, map) do
       {:error, msg} -> {:error, msg}
-      {:ok, result} -> result
+      {:ok, result} -> {:ok, result}
     end
   end
 
-  def eval_ctx({[], []}, map) do
+  def eval_args({[], []}, map) do
     {:ok, map}
   end
 
-  def eval_ctx({[param | r1], [arg | r2]}, map) do
-
+  def eval_args({[param | r1], [arg | r2]}, map) do
     case eval_expr(arg, map) do
       {:error, msg} ->
         {:error, msg}
 
       {:ok, data_struct} ->
-        case eval_match({:var, param}, data_struct, map) do
+        clean_map = Map.del(extract_vars({:var, param}, []), map)
+
+        case eval_match({:var, param}, data_struct, clean_map) do
           {:error, msg} ->
             {:error, msg}
 
           {:ok, new_map} ->
-            eval_ctx({r1, r2}, new_map)
+            eval_args({r1, r2}, new_map)
         end
     end
   end
@@ -213,7 +231,13 @@ defmodule Interpreter.Eager do
         eval_case(rest, data_struct, map)
 
       {:ok, new_map} ->
-        eval(seq, new_map)
+        case eval(seq, new_map) do
+          {:error, msg} ->
+            {:error, msg}
+
+          {:ok, result} ->
+            {:ok, result}
+        end
     end
   end
 end
