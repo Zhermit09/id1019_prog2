@@ -54,6 +54,10 @@ defmodule Interpreter.Eager do
     {:ok, map}
   end
 
+  def eval_match(_, :_, map) do
+    {:ok, map}
+  end
+
   def eval_match({:var, var}, exp, map) do
     case Map.find(var, map) do
       {_, ^exp} ->
@@ -72,10 +76,10 @@ defmodule Interpreter.Eager do
     eval_match({:var, var}, exp, map)
   end
 
-  def eval_match({:atm, atm}, val, map) do
+  def eval_match({:atm, atm}, exp, map) do
     cond do
-      atm == val -> {:ok, map}
-      true -> {:error, "Cannot match '#{inspect(val)}' onto '#{inspect(atm)}'"}
+      atm == exp -> {:ok, map}
+      true -> {:error, "Cannot match '#{inspect(exp)}' onto '#{inspect({:atm, atm})}'"}
     end
   end
 
@@ -123,11 +127,7 @@ defmodule Interpreter.Eager do
   def eval(exp) do
     eval(exp, %{})
   end
-
-  def eval([], map) do
-    {:ok, map}
-  end
-
+  
   def eval([{:match, pat, exp} | rest], map) do
     case eval_expr(exp, map) do
       {:error, msg} ->

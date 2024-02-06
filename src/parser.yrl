@@ -12,10 +12,10 @@ Right   199     expr.
 Left    200     '*'.
 Left    300     '^'.
 
-Right   400     '('.
-Left    400     ')'.
+Right   500     '('.
+Left    500     ')'.
 
-Right   500     func.
+Right   400     func.
 
 
 expr -> num                     : '$1'.

@@ -80,27 +80,27 @@ defmodule Evaluate.EvalExpr do
   def simplify({func, exp}) do
     cond do
       func == :sin ->
-        sin(exp)
+        sin(simplify(exp))
 
       func == :cos ->
-        cos(exp)
+        cos(simplify(exp))
 
       func == :tan ->
-        tan(exp)
+        tan(simplify(exp))
 
       func == :asin ->
-        asin(exp)
+        asin(simplify(exp))
 
       func == :acos ->
-        acos(exp)
+        acos(simplify(exp))
 
       func == :atan ->
-        atan(exp)
+        atan(simplify(exp))
 
       true ->
         case func do
-          {:log, num} -> log(num, exp)
-          {:root, num} -> root(num, exp)
+          {:log, num} -> log(num, simplify(exp))
+          {:root, num} -> root(num, simplify(exp))
           _ -> IO.puts("Not Supported!")
         end
     end

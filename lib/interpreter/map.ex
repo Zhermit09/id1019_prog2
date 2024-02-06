@@ -23,7 +23,7 @@ defmodule Interpreter.Map do
     {:ok, Map.take(map, keys)}
   end
 
-  def merge(left, right) do
-    Map.merge left, right
+  def merge(low_prio, high_prio) do
+    Map.merge(low_prio, high_prio)
   end
 end

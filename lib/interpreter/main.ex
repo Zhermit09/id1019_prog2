@@ -5,7 +5,6 @@ defmodule Interpreter.Main do
   def main() do
     IO.inspect("fuck this")
 
-    # IO.inspect(Map.add(:y, 13, Map.add(:x, 12, Map.add(:foo, 42, Map.new()))))
     IO.inspect(Eager.eval_expr({:atm, :a}, %{}))
     IO.inspect(Eager.eval_expr({:var, :x}, Map.add(:x, :a, %{})))
     IO.inspect(Eager.eval_expr({:var, :x}, %{}))
