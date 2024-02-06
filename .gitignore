@@ -29,4 +29,4 @@ assignments-*.tar
 /projectFilesBackup/
 /src/*.erl
 *.iml
-/lib/map/data/
+/lib/*/data/
