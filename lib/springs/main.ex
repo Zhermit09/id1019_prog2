@@ -2,8 +2,6 @@ defmodule Springs.Main do
   alias Springs.Comb, as: Comb
 
   def main() do
-    IO.inspect([[1, 2| [3, 4]] | [5]] )
-
     {:ok, file} = File.read("./lib/springs/input.txt")
 
     list = parse_file(file)
@@ -19,15 +17,7 @@ defmodule Springs.Main do
     |> Enum.map(fn x ->
       [springs, damaged] = String.split(x, " ")
 
-      status =
-        List.foldr(
-          String.split(springs, ".", trim: true),
-          [],
-          fn x, acc ->
-            [pattern_split(String.to_charlist(x)) | acc]
-          end
-        )
-
+      status = String.to_charlist(springs)
       seq =
         Enum.map(String.split(damaged, ","), fn str ->
           {int, _} = Integer.parse(str)

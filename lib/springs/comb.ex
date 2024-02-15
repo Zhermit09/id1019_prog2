@@ -4,113 +4,104 @@ defmodule Springs.Comb do
   end
 
   def count_comb([h | tail]) do
-    [comb(h) | count_comb(tail)]
-  end
-
-  def comb([[], []]) do
-    []
+    comb(h)
+    count_comb(tail)
+    # [check(h, 0) | count_comb(tail)]
   end
 
   def comb([pat, seq]) do
-    pl = length(pat)
-    sl = length(seq)
-    [head | tail] = pat
+    len = length(pat)
+    sum = Enum.reduce(seq, 0, fn x, acc -> x + acc end)
+    hash = Enum.count(pat, fn x -> x == ?# end)
+    dot = Enum.count(pat, fn x -> x == ?. end)
+    #IO.inspect({[pat, seq], {sum - hash, len - sum - dot}})
+    comb([pat, seq], {sum - hash, len - sum - dot}, [])
+  end
 
+  def comb([[], seq], {0, 0}, acc) do
+    case check([acc, seq], 0) do
+      true -> 1
+      false -> 0
+    end
+  end
+
+  def comb([[h | pat], seq], {hash, dot}, acc) do
+    IO.inspect({[[h | pat], seq], {hash, dot}, acc})
+    IO.gets("wait")
     cond do
-      pl < sl ->
-        case head do
-          [{:"?", num}] ->
-            {i, _} =
-              Enum.reduce(seq, {0, -1}, fn x, {i, acc} ->
-                cond do
-                  num >= acc + x + 1 ->
-                    {i + 1, acc + x + 1}
+      h == ?? ->
+        cond do
+          hash > 0 && 0 < dot ->
+            comb([pat, seq], {hash - 1, dot}, [?# | acc]) +
+              comb([pat, seq], {hash, dot - 1}, [?. | acc])
 
-                  true ->
-                    {i, acc}
-                end
-              end)
+          hash > 0 ->
+            comb([pat, seq], {hash - 1, dot}, [?# | acc])
 
-            {split, rest} = Enum.split(seq, i)
-            [count(head, split) | comb([tail, rest])]
+          0 < dot ->
+            comb([pat, seq], {hash, dot - 1}, [?. | acc])
 
-          [{:"#", _}] ->
-            [split | rest] = seq
-            [count(head, split) | comb([tail, rest])]
-
-          _ ->
-            :mix1
+          true ->
+            :error
         end
 
-      pl == sl ->
-        case head do
-          [{:"?", num}] ->
-            [split | rest] = seq
+      true ->
+        comb([pat, seq], {hash, dot}, [h | acc])
+    end
+  end
 
-            cond do
-              num >= split -> [count(head, [split]) | comb([tail, rest])]
-              true -> [comb([tail, seq])]
-            end
+  def check([[], []], acc) do
+    acc == 0
+  end
 
-          [{:"#", _}] ->
-            [split | rest] = seq
-            [count(head, split) | comb([tail, rest])]
+  def check([[], _], _) do
+    false
+  end
 
-          [{:"#", n1}, {:"?", n2} | tl] ->
-            [split | rest] = seq
+  def check([[h | tp], []], acc) do
+    cond do
+      acc == 0 ->
+        cond do
+          h == ?# ->
+            false
 
-            cond do
-              n1 + n2 == split ->
-                [count([{:"#", split}], split) | comb([tl ++ tail, rest])]
-
-              n1 + n2 > split ->
-                [count([{:"#", split}], split) | comb([[[{:"?", n2} | tl] | tail], rest])]
-
-              true ->
-                :error
-            end
-
-          [{:"?", n1}, {:"#", n2} | tl] ->
-            [split | rest] = seq
-
-            cond do
-              n1 + n2 == split ->
-                [count([{:"#", split}], split) | comb([tl ++ tail, rest])]
-
-              n1 + n2 > split ->
-                [count([{:"#", split}], split) | comb([[[{:"?", n2} | tl] | tail], rest])]
-
-              true ->
-                :error
-            end
-
-          _ ->
-            :mix2
+          true ->
+            check([tp, []], acc)
         end
 
-      pl > sl ->
-        :fucked
+      true ->
+        false
     end
   end
 
-  def count([{:"?", num}], seq) do
-    sum = Enum.reduce(seq, -1, fn x, acc -> x + acc + 1 end)
-
+  def check([[h | tp], [num | ts]], acc) do
     cond do
-      num == sum -> 1
-      num > sum -> :comb
-      num < sum -> :error
-    end
-  end
+      acc == 0 ->
+        cond do
+          h == ?# ->
+            check([tp, [num | ts]], acc + 1)
 
-  def count([{:"#", num}], length) do
-    cond do
-      num == length -> 1
-      true -> :error
-    end
-  end
+          true ->
+            check([tp, [num | ts]], acc)
+        end
 
-  def count(pat, seq) do
-    :count
+      acc < num ->
+        cond do
+          h == ?# ->
+            check([tp, [num | ts]], acc + 1)
+
+          true ->
+            false
+        end
+
+      acc == num ->
+        cond do
+          h == ?# ->
+            false
+
+          true ->
+            check([tp, ts], 0)
+        end
+    end
   end
 end
