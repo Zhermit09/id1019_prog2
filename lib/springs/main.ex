@@ -1,11 +1,17 @@
 defmodule Springs.Main do
+  alias Springs.Comb, as: Comb
+
   def main() do
-    IO.puts("Yeet")
+    IO.inspect([[1, 2| [3, 4]] | [5]] )
+
     {:ok, file} = File.read("./lib/springs/input.txt")
 
     list = parse_file(file)
 
     IO.inspect(list)
+    IO.puts("\n\n")
+
+    IO.inspect(Comb.count_comb(list))
   end
 
   def parse_file(file) do
@@ -13,7 +19,14 @@ defmodule Springs.Main do
     |> Enum.map(fn x ->
       [springs, damaged] = String.split(x, " ")
 
-      status = pattern_split(String.to_charlist(springs))
+      status =
+        List.foldr(
+          String.split(springs, ".", trim: true),
+          [],
+          fn x, acc ->
+            [pattern_split(String.to_charlist(x)) | acc]
+          end
+        )
 
       seq =
         Enum.map(String.split(damaged, ","), fn str ->
@@ -29,9 +42,9 @@ defmodule Springs.Main do
     []
   end
 
-  def pattern_split([h1 | tail]) do
-    {i, rest} = count(tail, h1, 1)
-    [{List.to_atom([h1]), i} | pattern_split(rest)]
+  def pattern_split([h | tail]) do
+    {i, rest} = count(tail, h, 1)
+    [{List.to_atom([h]), i} | pattern_split(rest)]
   end
 
   def count([], _, i) do
