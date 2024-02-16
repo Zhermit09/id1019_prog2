@@ -4,7 +4,7 @@ defmodule Springs.Main do
   def main() do
     {:ok, file} = File.read("./lib/springs/input.txt")
 
-    list = parse_file(file, 1)
+    list = parse_file(file, 5)
 
     #IO.inspect(list)
     IO.puts("\n\n")
