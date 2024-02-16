@@ -18,20 +18,20 @@ defmodule Springs.Combo do
     check([pat, seq], 0, {sum - hash, len - sum - dot}, %{})
   end
 
-  def combo([[], seq], acc, {0, 0},  mem) do
-    # IO.inspect({[[], seq], {0, 0}, acc, mem})
-    # IO.puts("//////////////////////////////\n")
-    #case check([Enum.reverse(acc), seq], 0) do
+  def combo([[], seq], acc, {0, 0}, mem) do
+    # #IO.inspect({[[], seq], {0, 0}, acc, mem})
+    # #IO.puts("//////////////////////////////\n")
+    # #case check([Enum.reverse(acc), seq], 0) do
     #  true -> {1, Map.put(mem, [[], seq], 1)}
-     # false -> {0, Map.put(mem, [[], seq], 0)}
-    #end
+    # false -> {0, Map.put(mem, [[], seq], 0)}
+    # end
   end
 
   def combo([[h | pat], seq], {hash, dot}, acc, mem) do
-    IO.inspect({[[h | pat], seq], {hash, dot}, acc, mem})
-    # IO.inspect(Map.fetch(mem, {[h | pat], acc}))
-    # IO.puts("\n")
-    IO.gets("wait")
+    #IO.inspect({[[h | pat], seq], {hash, dot}, acc, mem})
+    ## #IO.inspect(Map.fetch(mem, {[h | pat], acc}))
+    #IO#.gets("wait")
+    # #IO.puts("\n")
 
     case Map.fetch(mem, [[h | pat], seq]) do
       {:ok, val} ->
@@ -67,6 +67,9 @@ defmodule Springs.Combo do
   end
 
   def check([[], []], acc, {0, 0}, mem) do
+    #IO.inspect({[[], []], acc, {0, 0}, mem})
+    #IO.gets("wait")
+    #IO.puts("\n")
     case acc == 0 do
       true -> {1, mem}
       false -> {0, mem}
@@ -74,6 +77,9 @@ defmodule Springs.Combo do
   end
 
   def check([[], [num]], acc, {hash, dot}, mem) do
+    #IO.inspect({[[], [num]], acc, {hash, dot}, mem})
+    #IO.gets("wait")
+    #IO.puts("\n")
     case acc == num do
       true -> {1, mem}
       false -> {0, mem}
@@ -81,6 +87,9 @@ defmodule Springs.Combo do
   end
 
   def check([[h | tp], []], acc, {hash, dot}, mem) do
+    #IO.inspect({[[h | tp], []], acc, {hash, dot}, mem})
+    #IO.gets("wait")
+    #IO.puts("\n")
     case Map.fetch(mem, [[h | tp], []]) do
       {:ok, val} ->
         {val, mem}
@@ -117,6 +126,9 @@ defmodule Springs.Combo do
   end
 
   def check([[h | tp], [num | ts]], acc, {hash, dot}, mem) do
+    #IO.inspect({[[h | tp], [num | ts]], acc, {hash, dot}, mem})
+    #IO.gets("wait")
+    #IO.puts("\n")
     case Map.fetch(mem, [[h | tp], [num | ts]]) do
       {:ok, val} ->
         {val, mem}
@@ -134,6 +146,8 @@ defmodule Springs.Combo do
                   hash > 0 && 0 < dot ->
                     {c1, mem1} = check([tp, [num | ts]], acc + 1, {hash - 1, dot}, mem)
                     {c2, mem2} = check([tp, [num | ts]], acc, {hash, dot - 1}, mem1)
+
+                    IO.inspect({mem1})
 
                     {c1 + c2, Map.put(mem2, [[h | tp], [num | ts]], c1 + c2)}
 
@@ -157,7 +171,7 @@ defmodule Springs.Combo do
           acc < num ->
             cond do
               h == ?# ->
-                {c, new_mem} = check([tp, [num | ts]], {hash, dot},acc + 1, mem)
+                {c, new_mem} = check([tp, [num | ts]], acc + 1, {hash, dot}, mem)
                 {c, Map.put(new_mem, [[h | tp], [num | ts]], c)}
 
               h == ?? ->
@@ -184,6 +198,11 @@ defmodule Springs.Combo do
 
               h == ?? ->
                 cond do
+
+                  hash > 0 && 0 < dot ->
+                    {c2, mem2} = check([tp,  ts], 0, {hash, dot - 1}, mem)
+                    {c2, Map.put(mem2, [[h | tp], [num | ts]], c2)}
+
                   0 < dot ->
                     {c, new_mem} = check([tp, ts], 0, {hash, dot - 1}, mem)
                     {c, Map.put(new_mem, [[h | tp], [num | ts]], c)}
