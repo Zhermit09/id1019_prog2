@@ -1,10 +1,12 @@
 defmodule Springs.Combo do
   def count([]) do
-    0
+    {0, %{}}
   end
 
   def count([h | tail]) do
-    combo(h) + count(tail)
+    {c1, mem1} = combo(h)
+    {c2, mem2} = count(tail)
+    {c1 + c2, mem1}
   end
 
   def combo([pat, seq]) do
@@ -13,38 +15,53 @@ defmodule Springs.Combo do
     hash = Enum.count(pat, fn x -> x == ?# end)
     dot = Enum.count(pat, fn x -> x == ?. end)
 
-    combo([pat, seq], {sum - hash, len - sum - dot}, [])
+    combo([pat, seq], {sum - hash, len - sum - dot}, [], %{})
   end
 
-  def combo([[], seq], {0, 0}, acc) do
-
+  def combo([[], seq], {0, 0}, acc, mem) do
+    # IO.inspect({[[], seq], {0, 0}, acc, mem})
+    # IO.puts("//////////////////////////////\n")
     case check([Enum.reverse(acc), seq], 0) do
-      true -> 1
-      false -> 0
+      true -> {1, Map.put(mem, [[], seq], 1)}
+      false -> {0, Map.put(mem, [[], seq], 0)}
     end
   end
 
-  def combo([[h | pat], seq], {hash, dot}, acc) do
+  def combo([[h | pat], seq], {hash, dot}, acc, mem) do
+    IO.inspect({[[h | pat], seq], {hash, dot}, acc, mem})
+   # IO.inspect(Map.fetch(mem, {[h | pat], acc}))
+   # IO.puts("\n")
+IO.gets("wait")
+    case Map.fetch(mem, [[h | pat], seq]) do
+      {:ok, val} ->
+        {val, mem}
 
-    cond do
-      h == ?? ->
+      _ ->
         cond do
-          hash > 0 && 0 < dot ->
-            combo([pat, seq], {hash - 1, dot}, [?# | acc]) +
-              combo([pat, seq], {hash, dot - 1}, [?. | acc])
+          h == ?? ->
+            cond do
+              hash > 0 && 0 < dot ->
+                {c1, mem1} = combo([[?# | pat], seq], {hash - 1, dot}, acc, mem)
+                {c2, mem2} = combo([[?. | pat], seq], {hash, dot - 1}, acc, mem1)
 
-          hash > 0 ->
-            combo([pat, seq], {hash - 1, dot}, [?# | acc])
+                {c1 + c2, Map.put(mem2, [[?? | pat], seq], c1 + c2)}
 
-          0 < dot ->
-            combo([pat, seq], {hash, dot - 1}, [?. | acc])
+              hash > 0 ->
+                {c1, mem1} = combo([[?# | pat], seq], {hash - 1, dot}, acc, mem)
+                {c1, Map.put(mem1, [[?? | pat], seq], c1)}
+
+              0 < dot ->
+                {c1, mem1} = combo([[?. | pat], seq], {hash, dot - 1}, acc, mem)
+                {c1, Map.put(mem1, [[?? | pat], seq], c1)}
+
+              true ->
+                :error
+            end
 
           true ->
-            :error
+            {c1, mem1} = combo([pat, seq], {hash, dot}, [h | acc], mem)
+            {c1, Map.put(mem1, [pat, seq], c1)}
         end
-
-      true ->
-        combo([pat, seq], {hash, dot}, [h | acc])
     end
   end
 

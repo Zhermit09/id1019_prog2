@@ -4,9 +4,9 @@ defmodule Springs.Main do
   def main() do
     {:ok, file} = File.read("./lib/springs/input.txt")
 
-    list = parse_file(file, 5)
+    list = parse_file(file, 1)
 
-    IO.inspect(list)
+    #IO.inspect(list)
     IO.puts("\n\n")
 
     IO.inspect(Combo.count(list))

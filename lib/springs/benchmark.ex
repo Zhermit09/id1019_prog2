@@ -3,7 +3,7 @@ defmodule Springs.Benchmark do
   alias Springs.Combo, as: Combo
 
   @step 1
-  @i 4
+  @i 2
   @k 1
   @warmup 1
 
