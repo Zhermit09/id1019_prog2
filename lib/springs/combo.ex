@@ -1,52 +1,50 @@
-defmodule Springs.Comb do
-  def count_comb([]) do
-    []
+defmodule Springs.Combo do
+  def count([]) do
+    0
   end
 
-  def count_comb([h | tail]) do
-    comb(h)
-    count_comb(tail)
-    # [check(h, 0) | count_comb(tail)]
+  def count([h | tail]) do
+    combo(h) + count(tail)
   end
 
-  def comb([pat, seq]) do
+  def combo([pat, seq]) do
     len = length(pat)
     sum = Enum.reduce(seq, 0, fn x, acc -> x + acc end)
     hash = Enum.count(pat, fn x -> x == ?# end)
     dot = Enum.count(pat, fn x -> x == ?. end)
-    #IO.inspect({[pat, seq], {sum - hash, len - sum - dot}})
-    comb([pat, seq], {sum - hash, len - sum - dot}, [])
+
+    combo([pat, seq], {sum - hash, len - sum - dot}, [])
   end
 
-  def comb([[], seq], {0, 0}, acc) do
-    case check([acc, seq], 0) do
+  def combo([[], seq], {0, 0}, acc) do
+
+    case check([Enum.reverse(acc), seq], 0) do
       true -> 1
       false -> 0
     end
   end
 
-  def comb([[h | pat], seq], {hash, dot}, acc) do
-    IO.inspect({[[h | pat], seq], {hash, dot}, acc})
-    IO.gets("wait")
+  def combo([[h | pat], seq], {hash, dot}, acc) do
+
     cond do
       h == ?? ->
         cond do
           hash > 0 && 0 < dot ->
-            comb([pat, seq], {hash - 1, dot}, [?# | acc]) +
-              comb([pat, seq], {hash, dot - 1}, [?. | acc])
+            combo([pat, seq], {hash - 1, dot}, [?# | acc]) +
+              combo([pat, seq], {hash, dot - 1}, [?. | acc])
 
           hash > 0 ->
-            comb([pat, seq], {hash - 1, dot}, [?# | acc])
+            combo([pat, seq], {hash - 1, dot}, [?# | acc])
 
           0 < dot ->
-            comb([pat, seq], {hash, dot - 1}, [?. | acc])
+            combo([pat, seq], {hash, dot - 1}, [?. | acc])
 
           true ->
             :error
         end
 
       true ->
-        comb([pat, seq], {hash, dot}, [h | acc])
+        combo([pat, seq], {hash, dot}, [h | acc])
     end
   end
 
@@ -54,8 +52,8 @@ defmodule Springs.Comb do
     acc == 0
   end
 
-  def check([[], _], _) do
-    false
+  def check([[], [num]], acc) do
+    acc == num
   end
 
   def check([[h | tp], []], acc) do
