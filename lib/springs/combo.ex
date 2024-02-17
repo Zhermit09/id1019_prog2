@@ -19,21 +19,17 @@ defmodule Springs.Combo do
   end
 
   def check([[], []], {0, 0}, 0, mem) do
-    #IO.inspect({[[], []], {0, 0}, 0, mem})
     {1, mem}
   end
 
   def check([[], [num]], {0, 0}, acc, mem) do
-    #IO.inspect({[[], [num]], {0, 0}, acc, mem})
     case num == acc do
-      true ->  {1, mem}
+      true -> {1, mem}
       false -> {0, mem}
     end
   end
 
   def check([[h | pat], []], {hash, dot}, acc, mem) do
-    #IO.inspect({[[h | pat], []], {hash, dot}, acc, mem})
-
     case Map.fetch(mem, {[h | pat], [], {hash, dot}}) do
       {:ok, val} ->
         {val, mem}
@@ -61,8 +57,6 @@ defmodule Springs.Combo do
   end
 
   def check([[h | pat], [num | seq]], {hash, dot}, 0, mem) do
-    #IO.inspect({[[h | pat], [num | seq]], {hash, dot}, 0, mem})
-
     case Map.fetch(mem, {[h | pat], [num | seq], {hash, dot}}) do
       {:ok, val} ->
         {val, mem}
@@ -98,8 +92,6 @@ defmodule Springs.Combo do
   end
 
   def check([[h | pat], [acc | seq]], {hash, dot}, acc, mem) do
-    #IO.inspect({[[h | pat], [acc | seq]], {hash, dot}, acc, mem})
-
     case Map.fetch(mem, {[h | pat], [acc | seq], {hash, dot}}) do
       {:ok, val} ->
         {val, mem}
@@ -113,6 +105,7 @@ defmodule Springs.Combo do
                 {c2, mem2} = check([pat, seq], {hash, dot - 1}, 0, mem1)
 
                 {c1 + c2, Map.put(mem2, {[h | pat], [acc | seq], {hash, dot}}, c1 + c2)}
+
               hash > 0 ->
                 {0, Map.put(mem, {[h | pat], [acc | seq], {hash, dot}}, 0)}
 
@@ -132,9 +125,7 @@ defmodule Springs.Combo do
   end
 
   def check([[h | pat], [num | seq]], {hash, dot}, acc, mem) do
-    #IO.inspect({[[h | pat], [num | seq]], {hash, dot}, acc, mem})
-
-    case Map.fetch(mem,  {[h | pat], [num | seq], {hash, dot}}) do
+    case Map.fetch(mem, {[h | pat], [num | seq], {hash, dot}}) do
       {:ok, val} ->
         {val, mem}
 
@@ -144,18 +135,18 @@ defmodule Springs.Combo do
             cond do
               hash > 0 ->
                 {c, new_mem} = check([pat, [num | seq]], {hash - 1, dot}, acc + 1, mem)
-                {c, Map.put(new_mem,  {[h | pat], [num | seq], {hash, dot}}, c)}
+                {c, Map.put(new_mem, {[h | pat], [num | seq], {hash, dot}}, c)}
 
               0 < dot ->
-                {0, Map.put(mem,  {[h | pat], [num | seq], {hash, dot}}, 0)}
+                {0, Map.put(mem, {[h | pat], [num | seq], {hash, dot}}, 0)}
             end
 
           ?# ->
             {c, new_mem} = check([pat, [num | seq]], {hash, dot}, acc + 1, mem)
-            {c, Map.put(new_mem,  {[h | pat], [num | seq], {hash, dot}}, c)}
+            {c, Map.put(new_mem, {[h | pat], [num | seq], {hash, dot}}, c)}
 
           ?. ->
-            {0, Map.put(mem,  {[h | pat], [num | seq], {hash, dot}}, 0)}
+            {0, Map.put(mem, {[h | pat], [num | seq], {hash, dot}}, 0)}
         end
     end
   end

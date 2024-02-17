@@ -3,7 +3,7 @@ defmodule Springs.Benchmark do
   alias Springs.Combo, as: Combo
 
   @step 1
-  @i 2
+  @i 15
   @k 1
   @warmup 1
 
@@ -25,7 +25,7 @@ defmodule Springs.Benchmark do
     {
       data,
       &Combo.count/1,
-      "sampkle"
+      "springs2"
     }
     |> bench()
   end

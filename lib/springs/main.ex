@@ -5,10 +5,6 @@ defmodule Springs.Main do
     {:ok, file} = File.read("./lib/springs/input.txt")
 
     list = parse_file(file, 5)
-
-    #IO.inspect(list)
-    IO.puts("\n\n")
-
     IO.inspect(Combo.count(list))
   end
 
