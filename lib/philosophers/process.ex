@@ -48,7 +48,7 @@ defmodule Philosophers.Process do
   def start(name, {lPID, rPID}, mainPID, i, strength) do
     IO.inspect("here")
     spawn_link(fn ->
-      case Enum.reduce(i..1, strength, fn x, str ->
+      case Enum.reduce(i..1, strength, fn _, str ->
              case str > 0 do
                true ->
                  think(35)
@@ -98,7 +98,7 @@ defmodule Philosophers.Process do
 
   def start_async(name, {lPID, rPID}, mainPID, i, strength) do
     spawn_link(fn ->
-      case Enum.reduce(i..1, strength, fn x, str ->
+      case Enum.reduce(i..1, strength, fn _, str ->
              case str > 0 do
                true ->
                  think(35)

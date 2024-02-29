@@ -55,7 +55,7 @@ defmodule Philosophers.Main do
         send(pID, :ok)
         count(i - 1)
 
-      {:done, pID} ->
+      {:done, _} ->
         count(i + 1)
 
       :quit ->
