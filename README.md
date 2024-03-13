@@ -1,7 +1,7 @@
 # Assignments
 
 Here are all of my solutions for the assignments in the ID1019 Programming 2 course where one did a myriad of things, 
-everything from basic list handling to a derivative calculator to mandelbrot set exploration to creating a raytracer.
+everything from basic list handling to a derivative calculator to mandelbrot set exploration.
 
 ## Installation
 
